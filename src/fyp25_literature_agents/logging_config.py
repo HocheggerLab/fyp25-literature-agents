@@ -1,4 +1,11 @@
-"""Logging configuration for clean console output with optional file logging."""
+"""Logging configuration using loguru's native environment variables.
+
+Set these in your .env file:
+    LOGURU_AUTOINIT=False  # Disable default handler
+    LOGURU_LEVEL=INFO      # Log level (DEBUG, INFO, WARNING, ERROR)
+    LOGURU_FORMAT=<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>
+    LOG_FILE=analysis.log  # Optional: save logs to file
+"""
 
 import os
 import sys
@@ -6,125 +13,41 @@ from pathlib import Path
 
 from loguru import logger
 
-# Track if logging has been configured to avoid duplicate handlers
-_logging_configured = False
+_configured = False
 
 
-def setup_logging(verbose: bool = False, force: bool = False):
-    """Configure logging with clean console output and optional file logging.
+def setup_logging():
+    """Configure logging. Call once at startup.
 
-    Args:
-        verbose: If True, show DEBUG level logs on console. Default: False (INFO only)
-        force: If True, reconfigure even if already configured (for Jupyter). Default: False
-
-    Environment Variables:
-        LOG_FILE: If set, logs will be saved to this file (e.g., LOG_FILE=analysis.log)
-        LOG_LEVEL: Console log level (DEBUG, INFO, WARNING, ERROR). Default: INFO
-
-    Example:
-        >>> setup_logging(verbose=True)  # Show all logs on console
-        >>> # Or use environment:
-        >>> # LOG_FILE=analysis.log LOG_LEVEL=DEBUG python script.py
+    Respects environment variables:
+        LOGURU_LEVEL: Log level (DEBUG, INFO, WARNING, ERROR). Default: INFO
+        LOGURU_FORMAT: Log format string. Default: simple colored format
+        LOG_FILE: Optional file path for detailed logs with rotation
     """
-    global _logging_configured
+    global _configured
+    if _configured:
+        return
 
-    # Skip if already configured (unless force=True)
-    if _logging_configured and not force:
-        return logger
+    # Add console handler (respects LOGURU_LEVEL and LOGURU_FORMAT from env)
+    level = os.getenv("LOGURU_LEVEL", "INFO")
+    fmt = os.getenv(
+        "LOGURU_FORMAT",
+        "<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
+    )
 
-    # Remove all existing handlers
-    logger.remove()
+    logger.add(sys.stderr, format=fmt, level=level, colorize=True)
 
-    # Get configuration from environment
+    # Optional file logging with detailed format
     log_file = os.getenv("LOG_FILE")
-    log_level = os.getenv("LOG_LEVEL", "INFO" if not verbose else "DEBUG")
-
-    # Console logging - clean format
-    console_format = (
-        "<green>{time:HH:mm:ss}</green> | "
-        "<level>{level: <8}</level> | "
-        "<level>{message}</level>"
-    )
-
-    logger.add(
-        sys.stderr,
-        format=console_format,
-        level=log_level,
-        colorize=True,
-        filter=lambda record: _should_show_on_console(record, verbose),
-    )
-
-    # File logging - detailed format (if LOG_FILE is set)
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        file_format = (
-            "{time:YYYY-MM-DD HH:mm:ss.SSS} | "
-            "{level: <8} | "
-            "{name}:{function}:{line} | "
-            "{message}"
-        )
-
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
         logger.add(
             log_file,
-            format=file_format,
-            level="DEBUG",  # Always save DEBUG to file
-            rotation="10 MB",  # Rotate after 10MB
-            retention="7 days",  # Keep logs for 7 days
-            compression="zip",  # Compress old logs
+            format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
+            level="DEBUG",
+            rotation="10 MB",
+            retention="7 days",
+            compression="zip",
         )
 
-        logger.info(f"Logging to file: {log_file}")
-
-    # Mark as configured
-    _logging_configured = True
-
-    return logger
-
-
-def _should_show_on_console(record, verbose: bool) -> bool:
-    """Filter which logs to show on console.
-
-    Args:
-        record: Log record
-        verbose: Whether verbose mode is enabled
-
-    Returns:
-        True if log should be shown on console
-    """
-    # Always show WARNING and ERROR
-    if record["level"].no >= 30:  # WARNING = 30, ERROR = 40
-        return True
-
-    # In non-verbose mode, hide DEBUG logs
-    if not verbose and record["level"].name == "DEBUG":
-        return False
-
-    # Hide noisy messages in non-verbose mode
-    # (Most are now DEBUG level, but filter just in case)
-    if not verbose:
-        message = record["message"]
-        if any(
-            phrase in message
-            for phrase in [
-                "Processing article",
-                "Analyzing article",  # From analyze_article method
-                "✓ Completed",
-                "Processing batch",
-                "Initialized LiteratureAgent",
-                "Searching PubMed",
-            ]
-        ):
-            return False
-
-    return True
-
-
-def get_console_logger():
-    """Get a logger that only outputs to console (for progress messages).
-
-    Returns:
-        Logger instance configured for console only
-    """
-    return logger
+    _configured = True

@@ -28,7 +28,6 @@ async def analyze_gene_literature(
     save_dir: str = "results",
     ncbi_email: str | None = None,
     openai_api_key: str | None = None,
-    verbose: bool = False,
 ) -> dict:
     """Analyze PubMed literature for a gene with a single function call.
 
@@ -50,7 +49,10 @@ async def analyze_gene_literature(
         save_dir: Directory to save results (default: "results")
         ncbi_email: NCBI email (if None, reads from NCBI_EMAIL env var)
         openai_api_key: OpenAI API key (if None, reads from OPENAI_API_KEY env var)
-        verbose: Show DEBUG level logs (default: False). Use LOG_FILE env var to save logs to file.
+
+    Environment Variables:
+        LOGURU_LEVEL: Set to DEBUG for detailed logs, INFO for clean output (default: INFO)
+        LOG_FILE: Optional file path to save detailed logs
 
     Returns:
         Dictionary with keys:
@@ -72,7 +74,7 @@ async def analyze_gene_literature(
         >>> print(f"Results saved to: {results['output_file']}")
     """
     # Setup logging
-    setup_logging(verbose=verbose)
+    setup_logging()
 
     logger.info(f"Starting analysis for gene: {gene}")
 
@@ -128,7 +130,7 @@ async def analyze_gene_literature(
 
     # Step 3: Generate summary statistics
     summary = _generate_summary(analyzed_results)
-
+    _print_summary(summary)
     # Step 4: Save results
     output_file = _save_results(
         gene=gene,
@@ -218,7 +220,32 @@ def _generate_summary(results: list) -> dict:
         },
     }
 
+def _print_summary(summary: dict):
+    """Print formatted summary of analysis results.
 
+    Args:
+        summary: Summary statistics dictionary
+    """
+    if not summary:
+        return
+
+    # Show summary
+    print("\n📊 Summary:")
+    print(f"  Total cancer classifications: {summary['total_cancer_classifications']}")
+    print(f"  Unique cancer types: {summary['unique_cancer_types']}")
+    print(f"  Cancer types found: {', '.join(summary['cancer_types_found'][:5])}")
+
+    role_dist = summary["role_distribution"]
+    print("\n  Role distribution:")
+    print(f"    Tumor suppressor: {role_dist['tumor_suppressor']}")
+    print(f"    Oncogene: {role_dist['oncogene']}")
+    print(f"    Both: {role_dist['both']}")
+    print(f"    Unclear: {role_dist['unclear']}")
+
+    quality = summary["quality_metrics"]
+    print("\n  Quality metrics:")
+    print(f"    High confidence: {quality['high_confidence_percentage']}%")
+    print(f"    Needs full text: {quality['needs_full_text_percentage']}%")
 def _save_results(
     gene: str,
     search_query: str,

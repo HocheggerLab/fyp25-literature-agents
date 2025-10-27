@@ -1,0 +1,463 @@
+MANUAL LITERATURE ANALYSIS TEMPLATE (SIMPLIFIED)
+=================================================
+
+Instructions for Annotators:
+-----------------------------
+You will manually analyze PubMed abstracts to evaluate how accurately an LLM identifies
+gene-cancer relationships. For each abstract, you will extract categorical data that can
+be quantitatively compared against LLM predictions.
+
+This streamlined template focuses on the essential data needed for LLM evaluation.
+
+Save your completed analyses as: manual_analysis_results.json
+
+
+WHAT YOU'RE ANNOTATING:
+========================
+
+For each abstract, you will answer these questions:
+
+1. **pmid** - What is the PubMed ID? (for matching with LLM results)
+
+2. **title** - What is the article title? (for quick reference)
+
+3. **cancers** - What cancer types are mentioned, and what role does PPP2R2A play?
+   - Can be empty [] if no cancer is discussed
+   - Can have multiple entries if different roles in different cancers
+   - Each cancer needs: type, role, and your confidence level
+
+4. **has_clinical** - Does the abstract describe studies using patient samples,
+   clinical trials, or clinical data? (true/false)
+
+5. **has_basic** - Does the abstract describe basic research using cell lines,
+   animal models, or in vitro experiments? (true/false)
+
+6. **has_mutations** - Does the abstract mention mutations, genetic variants,
+   deletions, or other genetic alterations in PPP2R2A? (true/false)
+
+
+CATEGORICAL VALUE OPTIONS:
+===========================
+
+1. ROLE CLASSIFICATION (field: "role")
+   - "tumor_suppressor" : Gene loss/deletion/downregulation promotes cancer
+   - "oncogene"         : Gene overexpression/amplification/activation drives cancer
+   - "both"             : Gene shows both tumor suppressor and oncogenic properties
+   - "unclear"          : Role cannot be determined from abstract alone
+
+2. CONFIDENCE LEVEL (field: "confidence")
+   - "high"   : Strong, clear evidence with direct statements about gene-cancer relationship
+   - "medium" : Good evidence but some uncertainty or indirect statements
+   - "low"    : Weak evidence, unclear, or highly ambiguous
+
+3. STUDY TYPE (field: "has_clinical", "has_basic")
+   - true  : Yes, this type of study is described in the abstract
+   - false : No, this type of study is NOT described in the abstract
+
+4. MUTATIONS (field: "has_mutations")
+   - true  : Mutations, variants, deletions, or genetic alterations ARE described
+   - false : No mutations/alterations mentioned
+
+
+COMPLETED EXAMPLE:
+==================
+
+Abstract: "We analyzed PPP2R2A mutations in 500 breast cancer patients. Loss-of-function
+mutations in PPP2R2A were associated with increased tumor growth and poor prognosis. Cell
+line experiments confirmed that PPP2R2A deletion accelerates proliferation."
+
+{
+  "pmid": "12345678",
+  "title": "PPP2R2A mutations in breast cancer patients",
+  "cancers": [
+    {
+      "type": "breast cancer",
+      "role": "tumor_suppressor",
+      "confidence": "high"
+    }
+  ],
+  "has_clinical": true,    // 500 breast cancer patients mentioned
+  "has_basic": true,       // cell line experiments mentioned
+  "has_mutations": true    // loss-of-function mutations described
+}
+
+
+TIPS FOR MANUAL ANALYSIS:
+==========================
+
+1. Read the abstract carefully, multiple times if needed
+2. Identify specific cancer type(s) mentioned (be specific: "breast cancer" not just "cancer")
+3. Look for role keywords:
+   - Tumor suppressor: "deletion", "loss", "downregulation", "inactivation", "suppresses"
+   - Oncogene: "overexpression", "amplification", "activation", "upregulation", "promotes"
+4. Classify study types:
+   - Clinical: patients, clinical trials, patient samples, ctDNA, biopsies
+   - Basic: cell lines, mouse models, in vitro, in vivo experiments
+5. Check for mutation language:
+   - "mutations", "variants", "deletions", "alterations", "loss-of-function"
+6. Be honest about uncertainty:
+   - If the role is not clear, use "unclear"
+   - If evidence is weak or ambiguous, use "low" confidence
+7. Multiple cancers:
+   - List each cancer type separately if the gene has different roles
+   - An abstract can mention multiple cancer types
+8. No cancer mentioned:
+   - Use empty array: "cancers": []
+   - This happens when PPP2R2A is discussed but not in cancer context
+
+
+SIMPLIFIED JSON TEMPLATE:
+==========================
+
+[
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  },
+  {
+    "pmid": "",
+    "title": "",
+    "cancers": [
+      {
+        "type": "",
+        "role": "",
+        "confidence": ""
+      }
+    ],
+    "has_clinical": false,
+    "has_basic": false,
+    "has_mutations": false
+  }
+]
